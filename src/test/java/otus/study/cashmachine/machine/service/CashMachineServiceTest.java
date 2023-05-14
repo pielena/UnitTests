@@ -40,6 +40,7 @@ class CashMachineServiceTest {
 
     @Test
     void getMoney() {
+
 // @TODO create get money test using spy as mock
     }
 
