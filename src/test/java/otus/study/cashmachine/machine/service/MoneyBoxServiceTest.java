@@ -2,20 +2,15 @@ package otus.study.cashmachine.machine.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.ArgumentsProvider;
-import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import otus.study.cashmachine.machine.data.MoneyBox;
 import otus.study.cashmachine.machine.service.impl.MoneyBoxServiceImpl;
 
 import java.util.List;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MoneyBoxServiceTest {
 
@@ -39,18 +34,16 @@ public class MoneyBoxServiceTest {
 
     @Test
     void charge1001() {
-        Exception thrown = assertThrows(IllegalStateException.class, () -> {
-            moneyBoxService.getMoney(moneyBox, 1001);
-        });
+        Exception thrown = assertThrows(IllegalStateException.class,
+                () -> moneyBoxService.getMoney(moneyBox, 1001));
         assertEquals("Can't charge the required sum", thrown.getMessage());
     }
 
     @Test
     void chargeMoreThanHave() {
         int illegalSumToCharge = moneyBoxService.checkSum(moneyBox) + 100;
-        Exception thrown = assertThrows(IllegalStateException.class, () -> {
-            moneyBoxService.getMoney(moneyBox, illegalSumToCharge);
-        });
+        Exception thrown = assertThrows(IllegalStateException.class,
+                () -> moneyBoxService.getMoney(moneyBox, illegalSumToCharge));
         assertEquals("Not enough money", thrown.getMessage());
     }
 
@@ -59,5 +52,13 @@ public class MoneyBoxServiceTest {
         int initialSum = moneyBoxService.checkSum(moneyBox);
         moneyBoxService.putMoney(moneyBox, 1, 1, 1, 1);
         assertEquals(initialSum + 5000 + 1000 + 500 + 100, moneyBoxService.checkSum(moneyBox));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 1, 1, 1, 666600", "2, 2, 2, 2, 673200"})
+    void addNotes(int note100, int note500, int note1000, int note5000, int result) {
+
+        moneyBoxService.putMoney(moneyBox, note100, note500, note1000, note5000);
+        assertEquals(result, moneyBoxService.checkSum(moneyBox));
     }
 }
